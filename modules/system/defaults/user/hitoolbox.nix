@@ -26,4 +26,6 @@
     };
 
   };
+
+  config.system.defaults.user.hitoolbox.domain = "com.apple.HIToolbox";
 }

@@ -74,4 +74,6 @@ with lib;
     };
 
   };
+
+  config.system.defaults.user.menuExtraClock.domain = "com.apple.menuextra.clock";
 }

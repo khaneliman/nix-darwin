@@ -5,7 +5,7 @@ with lib;
 {
   options = {
 
-    system.defaults.ActivityMonitor.ShowCategory = mkOption {
+    system.defaults.user.ActivityMonitor.ShowCategory = mkOption {
       type = types.nullOr (types.enum [100 101 102 103 104 105 106 107]);
       default = null;
       description = ''
@@ -22,7 +22,7 @@ with lib;
         '';
     };
 
-    system.defaults.ActivityMonitor.IconType = mkOption {
+    system.defaults.user.ActivityMonitor.IconType = mkOption {
       type = types.nullOr types.int;
       default = null;
       description = ''
@@ -36,7 +36,7 @@ with lib;
         '';
     };
 
-    system.defaults.ActivityMonitor.SortColumn = mkOption {
+    system.defaults.user.ActivityMonitor.SortColumn = mkOption {
       type = types.nullOr types.str;
       default = null;
       description = ''
@@ -44,7 +44,7 @@ with lib;
         '';
     };
 
-    system.defaults.ActivityMonitor.SortDirection = mkOption {
+    system.defaults.user.ActivityMonitor.SortDirection = mkOption {
       type = types.nullOr types.int;
       default = null;
       description = ''
@@ -52,7 +52,7 @@ with lib;
         '';
     };
 
-    system.defaults.ActivityMonitor.OpenMainWindow = mkOption {
+    system.defaults.user.ActivityMonitor.OpenMainWindow = mkOption {
       type = types.nullOr types.bool;
       default = null;
       description = ''
@@ -60,4 +60,6 @@ with lib;
         '';
     };
   };
+
+  config.system.defaults.user.ActivityMonitor.domain = "com.apple.ActivityMonitor";
 }

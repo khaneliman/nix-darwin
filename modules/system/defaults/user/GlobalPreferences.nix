@@ -29,4 +29,6 @@ in {
         '';
       };
   };
+
+  config.system.defaults.user.GlobalPreferences.domain = ".GlobalPreferences";
 }

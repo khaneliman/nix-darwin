@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, options, ... }:
 
 with lib;
 
@@ -14,33 +14,32 @@ let
   dockFiltered = (builtins.removeAttrs cfg.dock ["expose-group-by-app"]);
 
   # defaults
-  alf = defaultsToList "/Library/Preferences/com.apple.alf" cfg.alf;
-  loginwindow = defaultsToList "/Library/Preferences/com.apple.loginwindow" cfg.loginwindow;
-  smb = defaultsToList "/Library/Preferences/SystemConfiguration/com.apple.smb.server" cfg.smb;
-  SoftwareUpdate = defaultsToList "/Library/Preferences/com.apple.SoftwareUpdate" cfg.SoftwareUpdate;
+  # alf = defaultsToList "/Library/Preferences/com.apple.alf" cfg.alf;
+  # loginwindow = defaultsToList "/Library/Preferences/com.apple.loginwindow" cfg.loginwindow;
+  # smb = defaultsToList "/Library/Preferences/SystemConfiguration/com.apple.smb.server" cfg.smb;
+  # SoftwareUpdate = defaultsToList "/Library/Preferences/com.apple.SoftwareUpdate" cfg.SoftwareUpdate;
 
   # userDefaults
-  GlobalPreferences = defaultsToList ".GlobalPreferences" cfg.".GlobalPreferences";
-  LaunchServices = defaultsToList "com.apple.LaunchServices" cfg.LaunchServices;
-  NSGlobalDomain = defaultsToList "-g" cfg.NSGlobalDomain;
-  menuExtraClock = defaultsToList "com.apple.menuextra.clock" cfg.menuExtraClock;
-  dock = defaultsToList "com.apple.dock" dockFiltered;
-  finder = defaultsToList "com.apple.finder" cfg.finder;
-  hitoolbox = defaultsToList "com.apple.HIToolbox" cfg.hitoolbox;
-  magicmouse = defaultsToList "com.apple.AppleMultitouchMouse" cfg.magicmouse;
+  # GlobalPreferences = defaultsToList ".GlobalPreferences" cfg.".GlobalPreferences";
+  # LaunchServices = defaultsToList "com.apple.LaunchServices" cfg.LaunchServices;
+  # NSGlobalDomain = defaultsToList "-g" cfg.NSGlobalDomain;
+  # menuExtraClock = defaultsToList "com.apple.menuextra.clock" cfg.menuExtraClock;
+  # dock = defaultsToList "com.apple.dock" dockFiltered;
+  # finder = defaultsToList "com.apple.finder" cfg.finder;
+  # hitoolbox = defaultsToList "com.apple.HIToolbox" cfg.hitoolbox;
+  # magicmouse = defaultsToList "com.apple.AppleMultitouchMouse" cfg.magicmouse;
   magicmouseBluetooth = defaultsToList "com.apple.driver.AppleMultitouchMouse.mouse" cfg.magicmouse;
-  screencapture = defaultsToList "com.apple.screencapture" cfg.screencapture;
-  screensaver = defaultsToList "com.apple.screensaver" cfg.screensaver;
-  spaces = defaultsToList "com.apple.spaces" cfg.spaces;
-  trackpad = defaultsToList "com.apple.AppleMultitouchTrackpad" cfg.trackpad;
+  # screencapture = defaultsToList "com.apple.screencapture" cfg.screencapture;
+  # screensaver = defaultsToList "com.apple.screensaver" cfg.screensaver;
+  # spaces = defaultsToList "com.apple.spaces" cfg.spaces;
+  # trackpad = defaultsToList "com.apple.AppleMultitouchTrackpad" cfg.trackpad;
   trackpadBluetooth = defaultsToList "com.apple.driver.AppleBluetoothMultitouch.trackpad" cfg.trackpad;
-  universalaccess = defaultsToList "com.apple.universalaccess" cfg.universalaccess;
-  ActivityMonitor = defaultsToList "com.apple.ActivityMonitor" cfg.ActivityMonitor;
-  WindowManager = defaultsToList "com.apple.WindowManager" cfg.WindowManager;
-  controlcenter = defaultsToList "~/Library/Preferences/ByHost/com.apple.controlcenter" cfg.controlcenter;  
+  # universalaccess = defaultsToList "com.apple.universalaccess" cfg.universalaccess;
+  # ActivityMonitor = defaultsToList "com.apple.ActivityMonitor" cfg.ActivityMonitor;
+  # WindowManager = defaultsToList "com.apple.WindowManager" cfg.WindowManager;
+  # controlcenter = defaultsToList "~/Library/Preferences/ByHost/com.apple.controlcenter" cfg.controlcenter;
   CustomUserPreferences = flatten (mapAttrsToList (name: value: defaultsToList name value) cfg.CustomUserPreferences);
   CustomSystemPreferences = flatten (mapAttrsToList (name: value: defaultsToList name value) cfg.CustomSystemPreferences);
-
 
   mkIfAttrs = list: mkIf (any (attrs: attrs != { }) list);
 in

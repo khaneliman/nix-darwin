@@ -310,4 +310,6 @@ in {
     };
 
     };
+
+  config.system.defaults.user.dock.domain = "com.apple.dock";
 }

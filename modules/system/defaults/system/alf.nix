@@ -71,4 +71,6 @@ with lib;
       '';
     };
   };
+
+  config.system.defaults.system.alf.domain = "/Library/Preferences/com.apple.alf";
 }

@@ -5,7 +5,7 @@
 
     system.defaults.controlcenter.BatteryShowPercentage = lib.mkOption {
         type = lib.types.nullOr lib.types.bool;
-        default = null; 
+        default = null;
         description = ''
             Apple menu > System Preferences > Control Center > Battery
 
@@ -16,7 +16,7 @@
     system.defaults.controlcenter.Sound = lib.mkOption {
         type = lib.types.nullOr lib.types.bool;
         apply = v: if v == null then null else if v == true then 18 else 24;
-        default = null; 
+        default = null;
         description = ''
             Apple menu > System Preferences > Control Center > Sound
 
@@ -30,7 +30,7 @@
     system.defaults.controlcenter.Bluetooth = lib.mkOption {
         type = lib.types.nullOr lib.types.bool;
         apply = v: if v == null then null else if v == true then 18 else 24;
-        default = null; 
+        default = null;
         description = ''
             Apple menu > System Preferences > Control Center > Bluetooth
 
@@ -44,7 +44,7 @@
     system.defaults.controlcenter.AirDrop = lib.mkOption {
         type = lib.types.nullOr lib.types.bool;
         apply = v: if v == null then null else if v == true then 18 else 24;
-        default = null; 
+        default = null;
         description = ''
             Apple menu > System Preferences > Control Center > AirDrop
 
@@ -58,7 +58,7 @@
     system.defaults.controlcenter.Display = lib.mkOption {
         type = lib.types.nullOr lib.types.bool;
         apply = v: if v == null then null else if v == true then 18 else 24;
-        default = null; 
+        default = null;
         description = ''
             Apple menu > System Preferences > Control Center > Display
 
@@ -72,7 +72,7 @@
     system.defaults.controlcenter.FocusModes = lib.mkOption {
         type = lib.types.nullOr lib.types.bool;
         apply = v: if v == null then null else if v == true then 18 else 24;
-        default = null; 
+        default = null;
         description = ''
             Apple menu > System Preferences > Control Center > Focus
 
@@ -86,7 +86,7 @@
     system.defaults.controlcenter.NowPlaying = lib.mkOption {
         type = lib.types.nullOr lib.types.bool;
         apply = v: if v == null then null else if v == true then 18 else 24;
-        default = null; 
+        default = null;
         description = ''
             Apple menu > System Preferences > Control Center > Now Playing
 
@@ -97,4 +97,6 @@
         '';
     };
   };
+
+  config.system.defaults.user.controlcenter.domain = "~/Library/Preferences/ByHost/com.apple.controlcenter";
 }

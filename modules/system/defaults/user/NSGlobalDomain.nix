@@ -432,4 +432,5 @@ in {
 
   };
 
+  config.system.defaults.user.NSGlobalDomain.domain = "-g";
 }

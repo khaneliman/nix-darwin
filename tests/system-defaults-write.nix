@@ -84,11 +84,11 @@
   system.defaults.universalaccess.reduceTransparency = true;
   system.defaults.universalaccess.closeViewScrollWheelToggle = true;
   system.defaults.universalaccess.closeViewZoomFollowsFocus = true;
-  system.defaults.ActivityMonitor.ShowCategory = 103;
-  system.defaults.ActivityMonitor.IconType = 3;
-  system.defaults.ActivityMonitor.SortColumn = "CPUUsage";
-  system.defaults.ActivityMonitor.SortDirection = 0;
-  system.defaults.ActivityMonitor.OpenMainWindow = true;
+  system.defaults.user.ActivityMonitor.ShowCategory = 103;
+  system.defaults.user.ActivityMonitor.IconType = 3;
+  system.defaults.user.ActivityMonitor.SortColumn = "CPUUsage";
+  system.defaults.user.ActivityMonitor.SortDirection = 0;
+  system.defaults.user.ActivityMonitor.OpenMainWindow = true;
   system.defaults.WindowManager.GloballyEnabled = false;
   system.defaults.WindowManager.EnableStandardClickToShowDesktop = false;
   system.defaults.WindowManager.AutoHide = false;

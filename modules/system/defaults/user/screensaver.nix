@@ -21,4 +21,6 @@ with lib;
         '';
     };
   };
+
+  config.system.defaults.user.screensaver.domain = "com.apple.screensaver";
 }

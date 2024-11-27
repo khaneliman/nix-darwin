@@ -73,4 +73,6 @@ with lib;
     };
 
   };
+
+  config.system.defaults.user.trackpad.domain = "com.apple.AppleMultitouchTrackpad";
 }

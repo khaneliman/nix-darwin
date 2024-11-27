@@ -198,4 +198,6 @@ in
       message = "`system.defaults.finder.NewWindowTargetPath` should be non-null when `NewWindowTarget` is set to `Other`.";
     }];
   };
+
+  config.system.defaults.user.finder.domain = "com.apple.finder";
 }

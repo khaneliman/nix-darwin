@@ -12,4 +12,6 @@ with lib;
       '';
     };
   };
+
+  config.system.defaults.system.SoftwareUpdate.domain = "/Library/Preferences/com.apple.SoftwareUpdate";
 }

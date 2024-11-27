@@ -18,4 +18,6 @@ with lib;
       '';
     };
   };
+
+  config.system.defaults.user.spaces.domain = "com.apple.spaces";
 }

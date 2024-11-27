@@ -35,7 +35,7 @@ with lib;
       description = ''
         Include date and time in screenshot filenames. The default is true.
         Screenshot 2024-01-09 at 13.27.20.png would be an example for true.
-        
+
         Screenshot.png
         Screenshot 1.png would be an example for false.
       '';
@@ -49,4 +49,6 @@ with lib;
       '';
     };
   };
+
+  config.system.defaults.user.screencapture.domain = "com.apple.screencapture";
 }

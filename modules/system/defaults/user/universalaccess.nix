@@ -53,4 +53,6 @@ with lib;
     };
 
   };
+
+  config.system.defaults.user.universalaccess.domain = "com.apple.universalaccess";
 }

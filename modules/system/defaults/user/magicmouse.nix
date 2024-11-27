@@ -18,4 +18,6 @@ with lib;
     };
 
   };
+
+  config.system.defaults.user.magicmouse.domain = "com.apple.AppleMultitouchMouse";
 }

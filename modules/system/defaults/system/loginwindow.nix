@@ -112,4 +112,6 @@ with lib;
       '';
     };
   };
+
+  config.system.defaults.system.loginwindow.domain = "/Library/Preferences/com.apple.loginwindow";
 }

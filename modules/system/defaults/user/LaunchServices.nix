@@ -14,4 +14,6 @@ with lib;
     };
 
   };
+
+  config.system.defaults.user.LaunchServices.domain = "com.apple.LaunchServices";
 }

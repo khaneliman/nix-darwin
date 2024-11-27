@@ -73,4 +73,6 @@ with lib;
       '';
     };
   };
+
+  config.system.defaults.user.WindowManager.domain = "com.apple.WindowManager";
 }

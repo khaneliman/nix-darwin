@@ -16,4 +16,6 @@ with lib;
       description = "Hostname to use for sharing services.";
     };
   };
+
+  config.system.defaults.system.smb.domain = "/Library/Preferences/SystemConfiguration/com.apple.smb.server";
 }
