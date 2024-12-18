@@ -22,10 +22,11 @@ showSyntax() {
   exit 1
 }
 
+sudo_base="command sudo -H --preserve-env=PATH --preserve-env=SSH_CONNECTION"
 sudo() {
   # We use `env` before our command to ensure the preserved PATH gets checked
   # when trying to resolve the command to execute
-  command sudo -H --preserve-env=PATH --preserve-env=SSH_CONNECTION env "$@"
+  $sudo_base env "$@"
 }
 
 # Parse the command line.
@@ -219,11 +220,16 @@ if [ "$action" = switch ]; then
 fi
 
 if [ "$action" = switch ] || [ "$action" = activate ] || [ "$action" = rollback ]; then
-  "$systemConfig/activate-user"
-
   if [ "$USER" != root ]; then
-    sudo "$systemConfig/activate"
+    # Running `$systemConfig/activate-user` may cause subsequent sudo invocations to prompt
+    # for the password even if we previously ran sudo in the same session, since `brew` resets
+    # the sudo timestamp: see https://github.com/Homebrew/brew/pull/17694.
+    # Indeed, by this point we've already run `nix-env --set` as sudo. So to avoid prompting a
+    # second time, we become root *before* running activate-user and then drop down to the user
+    # to invoke it. This way, the call to `activate` doesn't require a password.
+    sudo @shell@ -c "$sudo_base -u $USER $systemConfig/activate-user && $systemConfig/activate"
   else
+    "$systemConfig/activate-user"
     "$systemConfig/activate"
   fi
 fi
