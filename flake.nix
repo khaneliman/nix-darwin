@@ -1,8 +1,13 @@
 {
   description = "A collection of darwin modules";
 
+  inputs = {
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   outputs =
-    { self, nixpkgs }:
+    { self, nixpkgs, treefmt-nix }:
     let
       forAllSystems = nixpkgs.lib.genAttrs [
         "aarch64-darwin"
@@ -95,7 +100,8 @@
         description = "nix flake init -t nix-darwin";
       };
 
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
+      # formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.treefmt);
+      formatter = treefmt-nix.lib.mkWrapper nixpkgs ./treefmt.nix;
 
       checks = forDarwinSystems (system: jobs.${system}.tests // jobs.${system}.examples);
 
