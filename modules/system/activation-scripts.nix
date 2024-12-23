@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -21,7 +26,7 @@ in
     system.activationScripts = mkOption {
       internal = true;
       type = types.attrsOf (types.submodule script);
-      default = {};
+      default = { };
       description = ''
         A set of shell script fragments that are executed when a NixOS
         system configuration is activated.  Examples are updating

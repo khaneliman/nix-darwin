@@ -1,8 +1,9 @@
-{ lib
-, modules
-, baseModules ? import ./modules/module-list.nix
-, specialArgs ? { }
-, check ? true
+{
+  lib,
+  modules,
+  baseModules ? import ./modules/module-list.nix,
+  specialArgs ? { },
+  check ? true,
 }@args:
 
 let
@@ -15,11 +16,16 @@ let
     };
   };
 
-  eval = lib.evalModules (builtins.removeAttrs args [ "lib" ] // {
-    class = "darwin";
-    modules = modules ++ [ argsModule ] ++ baseModules;
-    specialArgs = { modulesPath = builtins.toString ./modules; } // specialArgs;
-  });
+  eval = lib.evalModules (
+    builtins.removeAttrs args [ "lib" ]
+    // {
+      class = "darwin";
+      modules = modules ++ [ argsModule ] ++ baseModules;
+      specialArgs = {
+        modulesPath = builtins.toString ./modules;
+      } // specialArgs;
+    }
+  );
 in
 
 {

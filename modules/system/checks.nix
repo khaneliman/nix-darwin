@@ -1,10 +1,15 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   # Similar to lib.escapeShellArg but escapes "s instead of 's, to allow for parameter expansion in shells
-  escapeDoubleQuote = arg: ''"${replaceStrings ["\""] ["\"\\\"\""] (toString arg)}"'';
+  escapeDoubleQuote = arg: ''"${replaceStrings [ "\"" ] [ "\"\\\"\"" ] (toString arg)}"'';
 
   cfg = config.system.checks;
 
@@ -31,7 +36,6 @@ let
     fi
   '';
 
-
   oldBuildUsers = ''
     if dscl . -list /Users | grep -q '^nixbld'; then
         echo "[1;31merror: Detected old style nixbld users, aborting activation[0m" >&2
@@ -46,7 +50,7 @@ let
         echo >&2
         exit 2
      fi
-   '';
+  '';
 
   preSequoiaBuildUsers = ''
     ${lib.optionalString config.nix.configureBuildUsers ''
@@ -132,28 +136,32 @@ let
     fi
   '';
 
-  nixDaemon = if config.nix.useDaemon then ''
-    if ! dscl . -read /Groups/nixbld PrimaryGroupID &> /dev/null; then
-      printf >&2 '[1;31merror: The daemon should not be enabled for single-user installs, aborting activation[0m\n'
-      printf >&2 'Disable the nix-daemon service:\n'
-      printf >&2 '\n'
-      printf >&2 '    services.nix-daemon.enable = false;\n'
-      printf >&2 '\n'
-      # shellcheck disable=SC2016
-      printf >&2 'and remove `nix.useDaemon` from your configuration if it is present.\n'
-      printf >&2 '\n'
-      exit 2
-    fi
-  '' else ''
-    if dscl . -read /Groups/nixbld PrimaryGroupID &> /dev/null; then
-      printf >&2 '[1;31merror: The daemon should be enabled for multi-user installs, aborting activation[0m\n'
-      printf >&2 'Enable the nix-daemon service:\n'
-      printf >&2 '\n'
-      printf >&2 '    services.nix-daemon.enable = true;\n'
-      printf >&2 '\n'
-      exit 2
-    fi
-  '';
+  nixDaemon =
+    if config.nix.useDaemon then
+      ''
+        if ! dscl . -read /Groups/nixbld PrimaryGroupID &> /dev/null; then
+          printf >&2 '[1;31merror: The daemon should not be enabled for single-user installs, aborting activation[0m\n'
+          printf >&2 'Disable the nix-daemon service:\n'
+          printf >&2 '\n'
+          printf >&2 '    services.nix-daemon.enable = false;\n'
+          printf >&2 '\n'
+          # shellcheck disable=SC2016
+          printf >&2 'and remove `nix.useDaemon` from your configuration if it is present.\n'
+          printf >&2 '\n'
+          exit 2
+        fi
+      ''
+    else
+      ''
+        if dscl . -read /Groups/nixbld PrimaryGroupID &> /dev/null; then
+          printf >&2 '[1;31merror: The daemon should be enabled for multi-user installs, aborting activation[0m\n'
+          printf >&2 'Enable the nix-daemon service:\n'
+          printf >&2 '\n'
+          printf >&2 '    services.nix-daemon.enable = true;\n'
+          printf >&2 '\n'
+          exit 2
+        fi
+      '';
 
   nixChannels = ''
     channelsLink=$(readlink "$HOME/.nix-defexpr/channels") || true

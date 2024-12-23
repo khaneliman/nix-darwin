@@ -1,15 +1,22 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
-  yabai = pkgs.runCommand "yabai-0.0.0" {} "mkdir $out";
+  yabai = pkgs.runCommand "yabai-0.0.0" { } "mkdir $out";
 in
 
 {
   services.yabai.enable = true;
   services.yabai.package = yabai;
-  services.yabai.config = { focus_follows_mouse = "autoraise"; };
+  services.yabai.config = {
+    focus_follows_mouse = "autoraise";
+  };
   services.yabai.extraConfig = "yabai -m rule --add app='System Preferences' manage=off";
 
   test = ''

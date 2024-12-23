@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -60,11 +65,17 @@ in
         exec ${cfg.package}/bin/builder "${cfg.configFile}"
       '';
 
-      path = [ config.nix.package pkgs.bash pkgs.coreutils pkgs.curl pkgs.git ];
-      environment =
-        { RUST_BACKTRACE = "1";
-          NIX_SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
-        };
+      path = [
+        config.nix.package
+        pkgs.bash
+        pkgs.coreutils
+        pkgs.curl
+        pkgs.git
+      ];
+      environment = {
+        RUST_BACKTRACE = "1";
+        NIX_SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+      };
 
       serviceConfig.KeepAlive = true;
       serviceConfig.StandardErrorPath = cfg.logFile;
@@ -106,4 +117,3 @@ in
 
   };
 }
-

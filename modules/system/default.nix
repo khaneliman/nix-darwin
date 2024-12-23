@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -10,7 +15,12 @@ let
 
   failedAssertions = map (x: x.message) (filter (x: !x.assertion) config.assertions);
 
-  throwAssertions = res: if (failedAssertions != []) then throw "\nFailed assertions:\n${concatStringsSep "\n" (map (x: "- ${x}") failedAssertions)}" else res;
+  throwAssertions =
+    res:
+    if (failedAssertions != [ ]) then
+      throw "\nFailed assertions:\n${concatStringsSep "\n" (map (x: "- ${x}") failedAssertions)}"
+    else
+      res;
   showWarnings = res: fold (w: x: builtins.trace "[1;31mwarning: ${w}[0m" x) res config.warnings;
 
 in
@@ -21,7 +31,7 @@ in
     system.build = mkOption {
       internal = true;
       type = types.attrsOf types.unspecified;
-      default = {};
+      default = { };
       description = ''
         Attribute set of derivation used to setup the system.
       '';
@@ -55,7 +65,7 @@ in
     system.systemBuilderArgs = mkOption {
       internal = true;
       type = types.attrsOf types.unspecified;
-      default = {};
+      default = { };
       description = ''
         `lib.mkDerivation` attributes that will be passed to the top level system builder.
       '';
@@ -64,8 +74,13 @@ in
     assertions = mkOption {
       type = types.listOf types.unspecified;
       internal = true;
-      default = [];
-      example = [ { assertion = false; message = "you can't enable this for that reason"; } ];
+      default = [ ];
+      example = [
+        {
+          assertion = false;
+          message = "you can't enable this for that reason";
+        }
+      ];
       description = ''
         This option allows modules to express conditions that must
         hold for the evaluation of the system configuration to
@@ -75,7 +90,7 @@ in
 
     warnings = mkOption {
       internal = true;
-      default = [];
+      default = [ ];
       type = types.listOf types.str;
       example = [ "The `foo' service is deprecated and will go away soon!" ];
       description = ''
@@ -88,64 +103,76 @@ in
 
   config = {
 
-    system.build.toplevel = throwAssertions (showWarnings (stdenvNoCC.mkDerivation ({
-      name = "darwin-system-${cfg.darwinLabel}";
-      preferLocalBuild = true;
+    system.build.toplevel = throwAssertions (
+      showWarnings (
+        stdenvNoCC.mkDerivation (
+          {
+            name = "darwin-system-${cfg.darwinLabel}";
+            preferLocalBuild = true;
 
-      nativeBuildInputs = [ pkgs.shellcheck ];
+            nativeBuildInputs = [ pkgs.shellcheck ];
 
-      activationScript = cfg.activationScripts.script.text;
-      activationUserScript = cfg.activationScripts.userScript.text;
-      inherit (cfg) darwinLabel;
+            activationScript = cfg.activationScripts.script.text;
+            activationUserScript = cfg.activationScripts.userScript.text;
+            inherit (cfg) darwinLabel;
 
-      darwinVersionJson = (pkgs.formats.json {}).generate "darwin-version.json" (
-        filterAttrs (k: v: v != null) {
-          inherit (config.system) darwinRevision nixpkgsRevision configurationRevision darwinLabel;
-        }
-      );
+            darwinVersionJson = (pkgs.formats.json { }).generate "darwin-version.json" (
+              filterAttrs (k: v: v != null) {
+                inherit (config.system)
+                  darwinRevision
+                  nixpkgsRevision
+                  configurationRevision
+                  darwinLabel
+                  ;
+              }
+            );
 
-      buildCommand = ''
-        mkdir $out
+            buildCommand = ''
+              mkdir $out
 
-        systemConfig=$out
+              systemConfig=$out
 
-        mkdir -p $out/darwin
-        cp -f ${../../CHANGELOG} $out/darwin-changes
+              mkdir -p $out/darwin
+              cp -f ${../../CHANGELOG} $out/darwin-changes
 
-        ln -s ${cfg.build.patches}/patches $out/patches
-        ln -s ${cfg.build.etc}/etc $out/etc
-        ln -s ${cfg.path} $out/sw
+              ln -s ${cfg.build.patches}/patches $out/patches
+              ln -s ${cfg.build.etc}/etc $out/etc
+              ln -s ${cfg.path} $out/sw
 
-        mkdir -p $out/Library
-        ln -s ${cfg.build.applications}/Applications $out/Applications
-        ln -s ${cfg.build.fonts}/Library/Fonts $out/Library/Fonts
-        ln -s ${cfg.build.launchd}/Library/LaunchAgents $out/Library/LaunchAgents
-        ln -s ${cfg.build.launchd}/Library/LaunchDaemons $out/Library/LaunchDaemons
+              mkdir -p $out/Library
+              ln -s ${cfg.build.applications}/Applications $out/Applications
+              ln -s ${cfg.build.fonts}/Library/Fonts $out/Library/Fonts
+              ln -s ${cfg.build.launchd}/Library/LaunchAgents $out/Library/LaunchAgents
+              ln -s ${cfg.build.launchd}/Library/LaunchDaemons $out/Library/LaunchDaemons
 
-        mkdir -p $out/user/Library
-        ln -s ${cfg.build.launchd}/user/Library/LaunchAgents $out/user/Library/LaunchAgents
+              mkdir -p $out/user/Library
+              ln -s ${cfg.build.launchd}/user/Library/LaunchAgents $out/user/Library/LaunchAgents
 
-        echo "$activationScript" > $out/activate
-        substituteInPlace $out/activate --subst-var out
-        chmod u+x $out/activate
-        unset activationScript
+              echo "$activationScript" > $out/activate
+              substituteInPlace $out/activate --subst-var out
+              chmod u+x $out/activate
+              unset activationScript
 
-        echo "$activationUserScript" > $out/activate-user
-        substituteInPlace $out/activate-user --subst-var out
-        chmod u+x $out/activate-user
-        unset activationUserScript
+              echo "$activationUserScript" > $out/activate-user
+              substituteInPlace $out/activate-user --subst-var out
+              chmod u+x $out/activate-user
+              unset activationUserScript
 
-        shellcheck $out/activate $out/activate-user
+              shellcheck $out/activate $out/activate-user
 
-        echo -n "$systemConfig" > $out/systemConfig
+              echo -n "$systemConfig" > $out/systemConfig
 
-        echo -n "$darwinLabel" > $out/darwin-version
-        ln -s $darwinVersionJson $out/darwin-version.json
-        echo -n "$system" > $out/system
+              echo -n "$darwinLabel" > $out/darwin-version
+              ln -s $darwinVersionJson $out/darwin-version.json
+              echo -n "$system" > $out/system
 
-        ${cfg.systemBuilderCommands}
-      '';
-    } // cfg.systemBuilderArgs)));
+              ${cfg.systemBuilderCommands}
+            '';
+          }
+          // cfg.systemBuilderArgs
+        )
+      )
+    );
 
   };
 }

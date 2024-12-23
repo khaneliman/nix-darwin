@@ -11,9 +11,21 @@ in
 
 {
   imports = [
-    (mkRemovedOptionModule [ "nix" "gc" "dates" ] "Use `nix.gc.interval` instead.")
-    (mkRemovedOptionModule [ "nix" "gc" "randomizedDelaySec" ] "No `nix-darwin` equivalent to this NixOS option.")
-    (mkRemovedOptionModule [ "nix" "gc" "persistent" ] "No `nix-darwin` equivalent to this NixOS option.")
+    (mkRemovedOptionModule [
+      "nix"
+      "gc"
+      "dates"
+    ] "Use `nix.gc.interval` instead.")
+    (mkRemovedOptionModule [
+      "nix"
+      "gc"
+      "randomizedDelaySec"
+    ] "No `nix-darwin` equivalent to this NixOS option.")
+    (mkRemovedOptionModule [
+      "nix"
+      "gc"
+      "persistent"
+    ] "No `nix-darwin` equivalent to this NixOS option.")
   ];
 
   ###### interface
@@ -37,7 +49,13 @@ in
 
       interval = mkOption {
         type = launchdTypes.StartCalendarInterval;
-        default = [{ Weekday = 7; Hour = 3; Minute = 15; }];
+        default = [
+          {
+            Weekday = 7;
+            Hour = 3;
+            Minute = 15;
+          }
+        ];
         description = ''
           The calendar interval at which the garbage collector will run.
           See the {option}`serviceConfig.StartCalendarInterval` option of
@@ -58,7 +76,6 @@ in
     };
 
   };
-
 
   ###### implementation
 

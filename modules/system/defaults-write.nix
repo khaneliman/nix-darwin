@@ -5,13 +5,15 @@ with lib;
 let
   cfg = config.system.defaults;
 
-  writeDefault = domain: key: value:
+  writeDefault =
+    domain: key: value:
     "defaults write ${domain} '${key}' $'${strings.escape [ "'" ] (generators.toPlist { } value)}'";
 
-  defaultsToList = domain: attrs: mapAttrsToList (writeDefault domain) (filterAttrs (n: v: v != null) attrs);
+  defaultsToList =
+    domain: attrs: mapAttrsToList (writeDefault domain) (filterAttrs (n: v: v != null) attrs);
   # Filter out options to not pass through
   # dock has alias options that we need to ignore
-  dockFiltered = (builtins.removeAttrs cfg.dock ["expose-group-by-app"]);
+  dockFiltered = (builtins.removeAttrs cfg.dock [ "expose-group-by-app" ]);
 
   # defaults
   alf = defaultsToList "/Library/Preferences/com.apple.alf" cfg.alf;
@@ -37,10 +39,13 @@ let
   universalaccess = defaultsToList "com.apple.universalaccess" cfg.universalaccess;
   ActivityMonitor = defaultsToList "com.apple.ActivityMonitor" cfg.ActivityMonitor;
   WindowManager = defaultsToList "com.apple.WindowManager" cfg.WindowManager;
-  controlcenter = defaultsToList "~/Library/Preferences/ByHost/com.apple.controlcenter" cfg.controlcenter;  
-  CustomUserPreferences = flatten (mapAttrsToList (name: value: defaultsToList name value) cfg.CustomUserPreferences);
-  CustomSystemPreferences = flatten (mapAttrsToList (name: value: defaultsToList name value) cfg.CustomSystemPreferences);
-
+  controlcenter = defaultsToList "~/Library/Preferences/ByHost/com.apple.controlcenter" cfg.controlcenter;
+  CustomUserPreferences = flatten (
+    mapAttrsToList (name: value: defaultsToList name value) cfg.CustomUserPreferences
+  );
+  CustomSystemPreferences = flatten (
+    mapAttrsToList (name: value: defaultsToList name value) cfg.CustomSystemPreferences
+  );
 
   mkIfAttrs = list: mkIf (any (attrs: attrs != { }) list);
 in
@@ -51,84 +56,89 @@ in
     # Type used for `system.defaults.<domain>.*` options that previously accepted float values as a
     # string.
     lib.defaults.types.floatWithDeprecationError = types.float // {
-      check = x:
-        if isString x && builtins.match "^[+-]?([0-9]*[.])?[0-9]+$" x != null
-        then throw "Using strings for `system.defaults.<domain>.*' options of type float is no longer permitted, use native float values instead."
-        else types.float.check x;
+      check =
+        x:
+        if isString x && builtins.match "^[+-]?([0-9]*[.])?[0-9]+$" x != null then
+          throw "Using strings for `system.defaults.<domain>.*' options of type float is no longer permitted, use native float values instead."
+        else
+          types.float.check x;
     };
 
-    system.activationScripts.defaults.text = mkIfAttrs [
-      alf
-      loginwindow
-      smb
-      SoftwareUpdate
-      CustomSystemPreferences
-    ]
-      ''
-        # Set defaults
-        echo >&2 "system defaults..."
-        ${concatStringsSep "\n" alf}
-        ${concatStringsSep "\n" loginwindow}
-        ${concatStringsSep "\n" smb}
-        ${concatStringsSep "\n" SoftwareUpdate}
-        ${concatStringsSep "\n" CustomSystemPreferences}
-      '';
+    system.activationScripts.defaults.text =
+      mkIfAttrs
+        [
+          alf
+          loginwindow
+          smb
+          SoftwareUpdate
+          CustomSystemPreferences
+        ]
+        ''
+          # Set defaults
+          echo >&2 "system defaults..."
+          ${concatStringsSep "\n" alf}
+          ${concatStringsSep "\n" loginwindow}
+          ${concatStringsSep "\n" smb}
+          ${concatStringsSep "\n" SoftwareUpdate}
+          ${concatStringsSep "\n" CustomSystemPreferences}
+        '';
 
-    system.activationScripts.userDefaults.text = mkIfAttrs
-      [
-        GlobalPreferences
-        LaunchServices
-        NSGlobalDomain
-        menuExtraClock
-        dock
-        finder
-        hitoolbox
-        magicmouse
-        magicmouseBluetooth
-        screencapture
-        screensaver
-        spaces
-        trackpad
-        trackpadBluetooth
-        universalaccess
-        ActivityMonitor
-        CustomUserPreferences
-        WindowManager
-        controlcenter
-      ]
-      ''
-        # Set defaults
-        echo >&2 "user defaults..."
+    system.activationScripts.userDefaults.text =
+      mkIfAttrs
+        [
+          GlobalPreferences
+          LaunchServices
+          NSGlobalDomain
+          menuExtraClock
+          dock
+          finder
+          hitoolbox
+          magicmouse
+          magicmouseBluetooth
+          screencapture
+          screensaver
+          spaces
+          trackpad
+          trackpadBluetooth
+          universalaccess
+          ActivityMonitor
+          CustomUserPreferences
+          WindowManager
+          controlcenter
+        ]
+        ''
+          # Set defaults
+          echo >&2 "user defaults..."
 
-        ${concatStringsSep "\n" NSGlobalDomain}
+          ${concatStringsSep "\n" NSGlobalDomain}
 
-        ${concatStringsSep "\n" GlobalPreferences}
-        ${concatStringsSep "\n" LaunchServices}
-        ${concatStringsSep "\n" menuExtraClock}
-        ${concatStringsSep "\n" dock}
-        ${concatStringsSep "\n" finder}
-        ${concatStringsSep "\n" hitoolbox}
-        ${concatStringsSep "\n" magicmouse}
-        ${concatStringsSep "\n" magicmouseBluetooth}
-        ${concatStringsSep "\n" screencapture}
-        ${concatStringsSep "\n" screensaver}
-        ${concatStringsSep "\n" spaces}
-        ${concatStringsSep "\n" trackpad}
-        ${concatStringsSep "\n" trackpadBluetooth}
-        ${concatStringsSep "\n" universalaccess}
-        ${concatStringsSep "\n" ActivityMonitor}
-        ${concatStringsSep "\n" CustomUserPreferences}
-        ${concatStringsSep "\n" WindowManager}
-        ${concatStringsSep "\n" controlcenter}
+          ${concatStringsSep "\n" GlobalPreferences}
+          ${concatStringsSep "\n" LaunchServices}
+          ${concatStringsSep "\n" menuExtraClock}
+          ${concatStringsSep "\n" dock}
+          ${concatStringsSep "\n" finder}
+          ${concatStringsSep "\n" hitoolbox}
+          ${concatStringsSep "\n" magicmouse}
+          ${concatStringsSep "\n" magicmouseBluetooth}
+          ${concatStringsSep "\n" screencapture}
+          ${concatStringsSep "\n" screensaver}
+          ${concatStringsSep "\n" spaces}
+          ${concatStringsSep "\n" trackpad}
+          ${concatStringsSep "\n" trackpadBluetooth}
+          ${concatStringsSep "\n" universalaccess}
+          ${concatStringsSep "\n" ActivityMonitor}
+          ${concatStringsSep "\n" CustomUserPreferences}
+          ${concatStringsSep "\n" WindowManager}
+          ${concatStringsSep "\n" controlcenter}
 
-        ${optionalString (length dock > 0) ''
-          # Only restart Dock if current user is logged in
-          if pgrep -xu $UID Dock >/dev/null; then
-            echo >&2 "restarting Dock..."
-            killall Dock || true
-          fi
-        ''}
-      '';
+          ${optionalString (length dock > 0) ''
+            # Only restart Dock if current user is logged in
+            if pgrep -xu $UID Dock >/dev/null; then
+              echo >&2 "restarting Dock..."
+              killall Dock || true
+            fi
+          ''}
+        '';
 
   };
 }

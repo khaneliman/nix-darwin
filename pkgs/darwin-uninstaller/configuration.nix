@@ -4,13 +4,13 @@ with lib;
 
 {
   # We are uninstalling, disable sanity checks.
-  assertions = mkForce [];
+  assertions = mkForce [ ];
   system.activationScripts.checks.text = mkForce "";
 
-  environment.etc = mkForce {};
-  launchd.agents = mkForce {};
-  launchd.daemons = mkForce {};
-  launchd.user.agents = mkForce {};
+  environment.etc = mkForce { };
+  launchd.agents = mkForce { };
+  launchd.daemons = mkForce { };
+  launchd.user.agents = mkForce { };
 
   # Don't try to reload `nix-daemon`
   nix.useDaemon = mkForce false;

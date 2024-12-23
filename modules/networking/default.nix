@@ -7,11 +7,11 @@ let
 
   hostnameRegEx = ''^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$'';
 
-  emptyList = lst: if lst != [] then lst else ["empty"];
+  emptyList = lst: if lst != [ ] then lst else [ "empty" ];
 
   onOff = cond: if cond then "on" else "off";
 
-  setNetworkServices = optionalString (cfg.knownNetworkServices != []) ''
+  setNetworkServices = optionalString (cfg.knownNetworkServices != [ ]) ''
     networkservices=$(networksetup -listallnetworkservices)
     ${concatMapStringsSep "\n" (srv: ''
       case "$networkservices" in
@@ -73,8 +73,12 @@ in
 
     networking.knownNetworkServices = mkOption {
       type = types.listOf types.str;
-      default = [];
-      example = [ "Wi-Fi" "Ethernet Adaptor" "Thunderbolt Ethernet" ];
+      default = [ ];
+      example = [
+        "Wi-Fi"
+        "Ethernet Adaptor"
+        "Thunderbolt Ethernet"
+      ];
       description = ''
         List of networkservices that should be configured.
 
@@ -85,14 +89,19 @@ in
 
     networking.dns = mkOption {
       type = types.listOf types.str;
-      default = [];
-      example = [ "8.8.8.8" "8.8.4.4" "2001:4860:4860::8888" "2001:4860:4860::8844" ];
+      default = [ ];
+      example = [
+        "8.8.8.8"
+        "8.8.4.4"
+        "2001:4860:4860::8888"
+        "2001:4860:4860::8844"
+      ];
       description = "The list of dns servers used when resolving domain names.";
     };
 
     networking.search = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
       description = "The list of search paths used when resolving domain names.";
     };
 
@@ -110,8 +119,12 @@ in
   config = {
 
     warnings = [
-      (mkIf (cfg.knownNetworkServices == [] && cfg.dns != []) "networking.knownNetworkServices is empty, dns servers will not be configured.")
-      (mkIf (cfg.knownNetworkServices == [] && cfg.search != []) "networking.knownNetworkServices is empty, dns searchdomains will not be configured.")
+      (mkIf (
+        cfg.knownNetworkServices == [ ] && cfg.dns != [ ]
+      ) "networking.knownNetworkServices is empty, dns servers will not be configured.")
+      (mkIf (
+        cfg.knownNetworkServices == [ ] && cfg.search != [ ]
+      ) "networking.knownNetworkServices is empty, dns searchdomains will not be configured.")
     ];
 
     system.activationScripts.networking.text = ''

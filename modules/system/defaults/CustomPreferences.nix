@@ -8,10 +8,11 @@ with lib;
       type = types.attrs;
       default = { };
       example = {
-        "NSGlobalDomain" = { "TISRomanSwitchState" = 1; };
+        "NSGlobalDomain" = {
+          "TISRomanSwitchState" = 1;
+        };
         "com.apple.Safari" = {
-          "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" =
-            true;
+          "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" = true;
         };
       };
       description = ''
@@ -23,10 +24,11 @@ with lib;
       type = types.attrs;
       default = { };
       example = {
-        "NSGlobalDomain" = { "TISRomanSwitchState" = 1; };
+        "NSGlobalDomain" = {
+          "TISRomanSwitchState" = 1;
+        };
         "com.apple.Safari" = {
-          "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" =
-            true;
+          "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" = true;
         };
       };
       description = ''

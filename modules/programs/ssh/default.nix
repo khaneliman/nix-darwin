@@ -21,7 +21,7 @@ let
         };
         hostNames = mkOption {
           type = types.listOf types.str;
-          default = [];
+          default = [ ];
           description = ''
             A list of host names and/or IP numbers used for accessing
             the host's ssh service.
@@ -61,7 +61,7 @@ let
     options.openssh.authorizedKeys = {
       keys = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = ''
           A list of verbatim OpenSSH public keys that should be added to the
           user's authorized keys. The keys are added to a file that the SSH
@@ -75,7 +75,7 @@ let
 
       keyFiles = mkOption {
         type = types.listOf types.path;
-        default = [];
+        default = [ ];
         description = ''
           A list of files each containing one OpenSSH public key that should be
           added to the user's authorized keys. The contents of the files are
@@ -88,34 +88,42 @@ let
 
   };
 
-  authKeysFiles = let
-    mkAuthKeyFile = u: nameValuePair "ssh/nix_authorized_keys.d/${u.name}" {
-      text = ''
-        ${concatStringsSep "\n" u.openssh.authorizedKeys.keys}
-        ${concatMapStrings (f: readFile f + "\n") u.openssh.authorizedKeys.keyFiles}
-      '';
-    };
-    usersWithKeys = attrValues (flip filterAttrs config.users.users (n: u:
-      length u.openssh.authorizedKeys.keys != 0 || length u.openssh.authorizedKeys.keyFiles != 0
-    ));
-  in listToAttrs (map mkAuthKeyFile usersWithKeys);
+  authKeysFiles =
+    let
+      mkAuthKeyFile =
+        u:
+        nameValuePair "ssh/nix_authorized_keys.d/${u.name}" {
+          text = ''
+            ${concatStringsSep "\n" u.openssh.authorizedKeys.keys}
+            ${concatMapStrings (f: readFile f + "\n") u.openssh.authorizedKeys.keyFiles}
+          '';
+        };
+      usersWithKeys = attrValues (
+        flip filterAttrs config.users.users (
+          n: u: length u.openssh.authorizedKeys.keys != 0 || length u.openssh.authorizedKeys.keyFiles != 0
+        )
+      );
+    in
+    listToAttrs (map mkAuthKeyFile usersWithKeys);
 
   oldAuthorizedKeysHash = "5a5dc1e20e8abc162ad1cc0259bfd1dbb77981013d87625f97d9bd215175fc0a";
 in
 
 {
   imports = [
-    (mkRemovedOptionModule [ "services" "openssh" "authorizedKeysFiles" ] "No `nix-darwin` equivalent to this NixOS option.")
+    (mkRemovedOptionModule [
+      "services"
+      "openssh"
+      "authorizedKeysFiles"
+    ] "No `nix-darwin` equivalent to this NixOS option.")
   ];
 
   options = {
 
-    users.users = mkOption {
-      type = with types; attrsOf (submodule userOptions);
-    };
+    users.users = mkOption { type = with types; attrsOf (submodule userOptions); };
 
     programs.ssh.knownHosts = mkOption {
-      default = {};
+      default = { };
       type = types.attrsOf (types.submodule host);
       description = ''
         The set of system-wide known SSH hosts.
@@ -137,32 +145,40 @@ in
 
   config = {
 
-    assertions = flip mapAttrsToList cfg.knownHosts (name: data: {
-      assertion = (data.publicKey == null && data.publicKeyFile != null) ||
-                  (data.publicKey != null && data.publicKeyFile == null);
-      message = "knownHost ${name} must contain either a publicKey or publicKeyFile";
-    });
+    assertions = flip mapAttrsToList cfg.knownHosts (
+      name: data: {
+        assertion =
+          (data.publicKey == null && data.publicKeyFile != null)
+          || (data.publicKey != null && data.publicKeyFile == null);
+        message = "knownHost ${name} must contain either a publicKey or publicKeyFile";
+      }
+    );
 
-    environment.etc = authKeysFiles //
-      { "ssh/ssh_known_hosts" = mkIf (builtins.length knownHosts > 0) {
-          text = (flip (concatMapStringsSep "\n") knownHosts
-            (h: assert h.hostNames != [];
-              lib.optionalString h.certAuthority "@cert-authority " + concatStringsSep "," h.hostNames + " "
-              + (if h.publicKey != null then h.publicKey else readFile h.publicKeyFile)
-            )) + "\n";
-        };
-        "ssh/sshd_config.d/101-authorized-keys.conf" = {
-          text = ''
-            # sshd doesn't like reading from symbolic links, so we cat
-            # the file ourselves.
-            AuthorizedKeysCommand /bin/cat /etc/ssh/nix_authorized_keys.d/%u
-            # Just a simple cat, fine to use _sshd.
-            AuthorizedKeysCommandUser _sshd
-          '';
-          # Allows us to automatically migrate from using a file to a symlink
-          knownSha256Hashes = [ oldAuthorizedKeysHash ];
-        };
+    environment.etc = authKeysFiles // {
+      "ssh/ssh_known_hosts" = mkIf (builtins.length knownHosts > 0) {
+        text =
+          (flip (concatMapStringsSep "\n") knownHosts (
+            h:
+            assert h.hostNames != [ ];
+            lib.optionalString h.certAuthority "@cert-authority "
+            + concatStringsSep "," h.hostNames
+            + " "
+            + (if h.publicKey != null then h.publicKey else readFile h.publicKeyFile)
+          ))
+          + "\n";
       };
+      "ssh/sshd_config.d/101-authorized-keys.conf" = {
+        text = ''
+          # sshd doesn't like reading from symbolic links, so we cat
+          # the file ourselves.
+          AuthorizedKeysCommand /bin/cat /etc/ssh/nix_authorized_keys.d/%u
+          # Just a simple cat, fine to use _sshd.
+          AuthorizedKeysCommandUser _sshd
+        '';
+        # Allows us to automatically migrate from using a file to a symlink
+        knownSha256Hashes = [ oldAuthorizedKeysHash ];
+      };
+    };
 
     system.activationScripts.etc.text = ''
       # Clean up .before-nix-darwin file left over from using knownSha256Hashes

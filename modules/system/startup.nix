@@ -1,13 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.system.startup;
 in
 
 {
-  meta.maintainers = [
-    lib.maintainers.samasaur or "samasaur"
-  ];
+  meta.maintainers = [ lib.maintainers.samasaur or "samasaur" ];
 
   options = {
     system.startup.chime = lib.mkOption {
@@ -26,6 +29,8 @@ in
   };
 
   config = {
-    system.nvram.variables."StartupMute" = lib.mkIf (cfg.chime != null) (if cfg.chime then "%00" else "%01");
+    system.nvram.variables."StartupMute" = lib.mkIf (cfg.chime != null) (
+      if cfg.chime then "%00" else "%01"
+    );
   };
 }

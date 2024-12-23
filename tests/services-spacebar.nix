@@ -1,15 +1,22 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
-  spacebar = pkgs.runCommand "spacebar-0.0.0" {} "mkdir $out";
+  spacebar = pkgs.runCommand "spacebar-0.0.0" { } "mkdir $out";
 in
 
 {
   services.spacebar.enable = true;
   services.spacebar.package = spacebar;
-  services.spacebar.config = { background_color = "0xff202020"; };
+  services.spacebar.config = {
+    background_color = "0xff202020";
+  };
   services.spacebar.extraConfig = ''echo "spacebar config loaded..."'';
 
   test = ''

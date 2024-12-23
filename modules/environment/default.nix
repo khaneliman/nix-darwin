@@ -1,34 +1,53 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   cfg = config.environment;
 
-  exportVariables =
-    mapAttrsToList (n: v: ''export ${n}="${v}"'') cfg.variables;
+  exportVariables = mapAttrsToList (n: v: ''export ${n}="${v}"'') cfg.variables;
 
-  aliasCommands =
-    mapAttrsToList (n: v: ''alias ${n}=${escapeShellArg v}'')
-      (filterAttrs (k: v: v != null) cfg.shellAliases);
+  aliasCommands = mapAttrsToList (n: v: ''alias ${n}=${escapeShellArg v}'') (
+    filterAttrs (k: v: v != null) cfg.shellAliases
+  );
 
   makeDrvBinPath = concatMapStringsSep ":" (p: if isDerivation p then "${p}/bin" else p);
 in
 
 {
   imports = [
-    (mkRenamedOptionModule ["environment" "postBuild"] ["environment" "extraSetup"])
-    (mkRemovedOptionModule [ "environment" "loginShell" ] ''
-      This option was only used to change the default command in tmux.
+    (mkRenamedOptionModule
+      [
+        "environment"
+        "postBuild"
+      ]
+      [
+        "environment"
+        "extraSetup"
+      ]
+    )
+    (mkRemovedOptionModule
+      [
+        "environment"
+        "loginShell"
+      ]
+      ''
+        This option was only used to change the default command in tmux.
 
-      This has been removed in favour of changing the default command or default shell in tmux directly.
-    '')
+        This has been removed in favour of changing the default command or default shell in tmux directly.
+      ''
+    )
   ];
 
   options = {
     environment.systemPackages = mkOption {
       type = types.listOf types.package;
-      default = [];
+      default = [ ];
       example = literalExpression "[ pkgs.curl pkgs.vim ]";
       description = ''
         The set of packages that appear in
@@ -54,14 +73,18 @@ in
 
     environment.extraOutputsToInstall = mkOption {
       type = types.listOf types.str;
-      default = [];
-      example = [ "doc" "info" "devdoc" ];
+      default = [ ];
+      example = [
+        "doc"
+        "info"
+        "devdoc"
+      ];
       description = "List of additional package outputs to be symlinked into {file}`/run/current-system/sw`.";
     };
 
     environment.pathsToLink = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
       example = [ "/share/doc" ];
       description = "List of directories to be symlinked in {file}`/run/current-system/sw`.";
     };
@@ -81,8 +104,11 @@ in
 
     environment.variables = mkOption {
       type = types.attrsOf (types.either types.str (types.listOf types.str));
-      default = {};
-      example = { EDITOR = "vim"; LANG = "nl_NL.UTF-8"; };
+      default = { };
+      example = {
+        EDITOR = "vim";
+        LANG = "nl_NL.UTF-8";
+      };
       description = ''
         A set of environment variables used in the global environment.
         These variables will be set on shell initialisation.
@@ -95,8 +121,10 @@ in
 
     environment.shellAliases = mkOption {
       type = types.attrsOf types.str;
-      default = {};
-      example = { ll = "ls -l"; };
+      default = { };
+      example = {
+        ll = "ls -l";
+      };
       description = ''
         An attribute set that maps aliases (the top level attribute names in
         this option) to command strings or directly to build outputs. The
@@ -167,7 +195,10 @@ in
     # Use user, default and system profiles.
     environment.profiles = mkMerge [
       (mkOrder 800 [ "$HOME/.nix-profile" ])
-      [ "/run/current-system/sw" "/nix/var/nix/profiles/default" ]
+      [
+        "/run/current-system/sw"
+        "/nix/var/nix/profiles/default"
+      ]
     ];
 
     environment.pathsToLink = [
@@ -177,21 +208,20 @@ in
     ];
 
     environment.extraInit = ''
-       # reset TERM with new TERMINFO available (if any)
-       export TERM=$TERM
+      # reset TERM with new TERMINFO available (if any)
+      export TERM=$TERM
 
-       export NIX_USER_PROFILE_DIR="/nix/var/nix/profiles/per-user/$USER"
-       export NIX_PROFILES="${concatStringsSep " " (reverseList cfg.profiles)}"
+      export NIX_USER_PROFILE_DIR="/nix/var/nix/profiles/per-user/$USER"
+      export NIX_PROFILES="${concatStringsSep " " (reverseList cfg.profiles)}"
     '';
 
-    environment.variables =
-      {
-        XDG_CONFIG_DIRS = map (path: path + "/etc/xdg") cfg.profiles;
-        XDG_DATA_DIRS = map (path: path + "/share") cfg.profiles;
-        TERMINFO_DIRS = map (path: path + "/share/terminfo") cfg.profiles ++ [ "/usr/share/terminfo" ];
-        EDITOR = mkDefault "nano";
-        PAGER = mkDefault "less -R";
-      };
+    environment.variables = {
+      XDG_CONFIG_DIRS = map (path: path + "/etc/xdg") cfg.profiles;
+      XDG_DATA_DIRS = map (path: path + "/share") cfg.profiles;
+      TERMINFO_DIRS = map (path: path + "/share/terminfo") cfg.profiles ++ [ "/usr/share/terminfo" ];
+      EDITOR = mkDefault "nano";
+      PAGER = mkDefault "less -R";
+    };
 
     system.path = pkgs.buildEnv {
       name = "system-path";

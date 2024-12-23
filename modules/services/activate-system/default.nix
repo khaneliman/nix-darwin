@@ -1,8 +1,20 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
-    (lib.mkRemovedOptionModule [ "services" "activate-system" "enable" ] "The `activate-system` service is now always enabled as it is necessary for a working `nix-darwin` setup.")
+    (lib.mkRemovedOptionModule
+      [
+        "services"
+        "activate-system"
+        "enable"
+      ]
+      "The `activate-system` service is now always enabled as it is necessary for a working `nix-darwin` setup."
+    )
   ];
 
   config = {

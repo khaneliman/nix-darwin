@@ -53,7 +53,9 @@ in
     "google-chrome"
     {
       name = "firefox";
-      args = { appdir = "~/my-apps/Applications"; };
+      args = {
+        appdir = "~/my-apps/Applications";
+      };
     }
     {
       name = "opera";
@@ -66,9 +68,7 @@ in
     Xcode = 497799835;
   };
 
-  homebrew.whalebrews = [
-    "whalebrew/wget"
-  ];
+  homebrew.whalebrews = [ "whalebrew/wget" ];
 
   test = ''
     bf=${lib.escapeShellArg config.homebrew.brewfile}

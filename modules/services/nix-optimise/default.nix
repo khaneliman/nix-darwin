@@ -3,7 +3,6 @@
 # When making changes please try to keep it in sync.
 { config, lib, ... }:
 
-
 let
   inherit (lib)
     mkIf
@@ -19,7 +18,11 @@ in
 
 {
   imports = [
-    (mkRemovedOptionModule [ "nix" "optimise" "dates" ] "Use `nix.optimise.interval` instead.")
+    (mkRemovedOptionModule [
+      "nix"
+      "optimise"
+      "dates"
+    ] "Use `nix.optimise.interval` instead.")
   ];
 
   ###### interface
@@ -43,7 +46,13 @@ in
 
       interval = mkOption {
         type = launchdTypes.StartCalendarInterval;
-        default = [{ Weekday = 7; Hour = 4; Minute = 15; }];
+        default = [
+          {
+            Weekday = 7;
+            Hour = 4;
+            Minute = 15;
+          }
+        ];
         description = ''
           The calendar interval at which the optimiser will run.
           See the {option}`serviceConfig.StartCalendarInterval` option of
@@ -54,7 +63,6 @@ in
     };
 
   };
-
 
   ###### implementation
 

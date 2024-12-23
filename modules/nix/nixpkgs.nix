@@ -1,4 +1,10 @@
-{ config, options, lib, pkgs, ... }:
+{
+  config,
+  options,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -6,40 +12,38 @@ let
   cfg = config.nixpkgs;
   opt = options.nixpkgs;
 
-  isConfig = x:
-    builtins.isAttrs x || lib.isFunction x;
+  isConfig = x: builtins.isAttrs x || lib.isFunction x;
 
-  optCall = f: x:
-    if lib.isFunction f
-    then f x
-    else f;
+  optCall = f: x: if lib.isFunction f then f x else f;
 
-  mergeConfig = lhs_: rhs_:
+  mergeConfig =
+    lhs_: rhs_:
     let
       lhs = optCall lhs_ { inherit pkgs; };
       rhs = optCall rhs_ { inherit pkgs; };
     in
-    recursiveUpdate lhs rhs //
-    optionalAttrs (lhs ? packageOverrides) {
-      packageOverrides = pkgs:
-        optCall lhs.packageOverrides pkgs //
-        optCall (attrByPath [ "packageOverrides" ] { } rhs) pkgs;
-    } //
-    optionalAttrs (lhs ? perlPackageOverrides) {
-      perlPackageOverrides = pkgs:
-        optCall lhs.perlPackageOverrides pkgs //
-        optCall (attrByPath [ "perlPackageOverrides" ] { } rhs) pkgs;
+    recursiveUpdate lhs rhs
+    // optionalAttrs (lhs ? packageOverrides) {
+      packageOverrides =
+        pkgs: optCall lhs.packageOverrides pkgs // optCall (attrByPath [ "packageOverrides" ] { } rhs) pkgs;
+    }
+    // optionalAttrs (lhs ? perlPackageOverrides) {
+      perlPackageOverrides =
+        pkgs:
+        optCall lhs.perlPackageOverrides pkgs
+        // optCall (attrByPath [ "perlPackageOverrides" ] { } rhs) pkgs;
     };
 
   configType = mkOptionType {
     name = "nixpkgs-config";
     description = "nixpkgs config";
-    check = x:
-      let traceXIfNot = c:
-            if c x then true
-            else lib.traceSeqN 1 x false;
-      in traceXIfNot isConfig;
-    merge = args: foldr (def: mergeConfig def.value) {};
+    check =
+      x:
+      let
+        traceXIfNot = c: if c x then true else lib.traceSeqN 1 x false;
+      in
+      traceXIfNot isConfig;
+    merge = args: foldr (def: mergeConfig def.value) { };
   };
 
   overlayType = mkOptionType {
@@ -55,7 +59,7 @@ let
     description = "An evaluation of Nixpkgs; the top level attribute set of packages";
   };
 
-  hasBuildPlatform = opt.buildPlatform.highestPrio < (mkOptionDefault {}).priority;
+  hasBuildPlatform = opt.buildPlatform.highestPrio < (mkOptionDefault { }).priority;
   hasHostPlatform = opt.hostPlatform.isDefined;
   hasPlatform = hasHostPlatform || hasBuildPlatform;
 
@@ -63,31 +67,28 @@ let
   hostPlatformLine = optionalString hasHostPlatform "${showOptionWithDefLocs opt.hostPlatform}";
   buildPlatformLine = optionalString hasBuildPlatform "${showOptionWithDefLocs opt.buildPlatform}";
 
-  legacyOptionsDefined =
-    optional (opt.system.highestPrio < (mkDefault {}).priority) opt.system
-    ;
+  legacyOptionsDefined = optional (opt.system.highestPrio < (mkDefault { }).priority) opt.system;
 
   defaultPkgs =
-    if opt.hostPlatform.isDefined
-    then
-      let isCross = cfg.buildPlatform != cfg.hostPlatform;
-          systemArgs =
-            if isCross
-            then {
+    if opt.hostPlatform.isDefined then
+      let
+        isCross = cfg.buildPlatform != cfg.hostPlatform;
+        systemArgs =
+          if isCross then
+            {
               localSystem = cfg.buildPlatform;
               crossSystem = cfg.hostPlatform;
             }
-            else {
-              localSystem = cfg.hostPlatform;
-            };
+          else
+            { localSystem = cfg.hostPlatform; };
       in
-      import cfg.source ({
-        inherit (cfg) config overlays;
-      } // systemArgs)
+      import cfg.source ({ inherit (cfg) config overlays; } // systemArgs)
     else
       import cfg.source {
         inherit (cfg) config overlays;
-        localSystem = { inherit (cfg) system; };
+        localSystem = {
+          inherit (cfg) system;
+        };
       };
 
   finalPkgs = if opt.pkgs.isDefined then cfg.pkgs.appendOverlays cfg.overlays else defaultPkgs;
@@ -121,11 +122,10 @@ in
     };
 
     config = mkOption {
-      default = {};
-      example = literalExpression
-        ''
-          { allowBroken = true; allowUnfree = true; }
-        '';
+      default = { };
+      example = literalExpression ''
+        { allowBroken = true; allowUnfree = true; }
+      '';
       type = configType;
       description = ''
         The configuration of the Nix Packages collection.  (For
@@ -137,18 +137,17 @@ in
     };
 
     overlays = mkOption {
-      default = [];
-      example = literalExpression
-        ''
-          [
-            (self: super: {
-              openssh = super.openssh.override {
-                hpnSupport = true;
-                kerberos = self.libkrb5;
-              };
-            })
-          ]
-        '';
+      default = [ ];
+      example = literalExpression ''
+        [
+          (self: super: {
+            openssh = super.openssh.override {
+              hpnSupport = true;
+              kerberos = self.libkrb5;
+            };
+          })
+        ]
+      '';
       type = types.listOf overlayType;
       description = ''
         List of overlays to use with the Nix Packages collection.
@@ -166,7 +165,10 @@ in
 
     hostPlatform = mkOption {
       type = types.either types.str types.attrs; # TODO utilize lib.systems.parsedPlatform
-      example = { system = "aarch64-darwin"; config = "aarch64-apple-darwin"; };
+      example = {
+        system = "aarch64-darwin";
+        config = "aarch64-apple-darwin";
+      };
       # Make sure that the final value has all fields for sake of other modules
       # referring to this. TODO make `lib.systems` itself use the module system.
       apply = lib.systems.elaborate;
@@ -182,12 +184,14 @@ in
     buildPlatform = mkOption {
       type = types.either types.str types.attrs; # TODO utilize lib.systems.parsedPlatform
       default = cfg.hostPlatform;
-      example = { system = "x86_64-darwin"; config = "x86_64-apple-darwin"; };
+      example = {
+        system = "x86_64-darwin";
+        config = "x86_64-apple-darwin";
+      };
       # Make sure that the final value has all fields for sake of other modules
       # referring to this.
       apply = lib.systems.elaborate;
-      defaultText = literalExpression
-        ''config.nixpkgs.hostPlatform'';
+      defaultText = literalExpression ''config.nixpkgs.hostPlatform'';
       description = ''
         Specifies the platform on which nix-darwin should be built.
         By default, nix-darwin is built on the system where it runs, but you can
@@ -206,8 +210,7 @@ in
       type = types.str;
       example = "x86_64-darwin";
       default =
-        if opt.hostPlatform.isDefined
-        then
+        if opt.hostPlatform.isDefined then
           throw ''
             Neither ${opt.system} nor any other option in nixpkgs.* is meant
             to be read by modules and configurations.
@@ -266,34 +269,32 @@ in
         # which is somewhat costly for Nixpkgs. With an explicit priority, we only
         # evaluate the wrapper to find out that the priority is lower, and then we
         # don't need to evaluate `finalPkgs`.
-        lib.mkOverride lib.modules.defaultOverridePriority
-          finalPkgs.__splicedPackages;
+        lib.mkOverride lib.modules.defaultOverridePriority finalPkgs.__splicedPackages;
     };
 
     nixpkgs.constructedByUs =
       # We set it with default priority and it can not be merged, so if the
       # pkgs module argument has that priority, it's from us.
       (lib.modules.mergeAttrDefinitionsWithPrio options._module.args).pkgs.highestPrio
-        == lib.modules.defaultOverridePriority
+      == lib.modules.defaultOverridePriority
       # Although, if nixpkgs.pkgs is set, we did forward it, but we did not construct it.
-        && !opt.pkgs.isDefined;
+      && !opt.pkgs.isDefined;
 
     assertions = [
       (
         let
           pkgsSystem = finalPkgs.stdenv.targetPlatform.system;
-        in {
+        in
+        {
           assertion = cfg.constructedByUs -> !hasPlatform -> cfg.system == pkgsSystem;
           message = "The nix-darwin nixpkgs.pkgs option was set to a Nixpkgs invocation that compiles to target system ${pkgsSystem} but nix-darwin was configured for system ${darwinExpectedSystem} via nix-darwin option nixpkgs.system. The nix-darwin system settings must match the Nixpkgs target system.";
         }
       )
       {
-        assertion = cfg.constructedByUs -> hasPlatform -> legacyOptionsDefined == [];
+        assertion = cfg.constructedByUs -> hasPlatform -> legacyOptionsDefined == [ ];
         message = ''
           Your system configures nixpkgs with the platform parameter${optionalString hasBuildPlatform "s"}:
-          ${hostPlatformLine
-          }${buildPlatformLine
-          }
+          ${hostPlatformLine}${buildPlatformLine}
           However, it also defines the legacy options:
           ${concatMapStrings showOptionWithDefLocs legacyOptionsDefined}
           For a future proof system configuration, we recommend to remove

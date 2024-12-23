@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   nix-tools = pkgs.callPackage ../../pkgs/nix-tools {
@@ -22,7 +27,7 @@ in
         Disable darwin-rebuild and darwin-option. This is useful to shrink
         systems which are not expected to rebuild or reconfigure themselves.
         Use at your own risk!
-    '';
+      '';
     };
 
     includeUninstaller = lib.mkOption {
@@ -38,7 +43,8 @@ in
       ++ lib.optionals (!config.system.disableInstallerTools) [
         darwin-option
         darwin-rebuild
-      ] ++ lib.optional config.system.includeUninstaller darwin-uninstaller;
+      ]
+      ++ lib.optional config.system.includeUninstaller darwin-uninstaller;
 
     system.build = {
       inherit darwin-option darwin-rebuild darwin-version;

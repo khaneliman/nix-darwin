@@ -6,9 +6,7 @@ let
   cfg = config.security.sudo;
 in
 {
-  meta.maintainers = [
-    lib.maintainers.samasaur or "samasaur"
-  ];
+  meta.maintainers = [ lib.maintainers.samasaur or "samasaur" ];
 
   options = {
     security.sudo.extraConfig = mkOption {
@@ -22,9 +20,7 @@ in
 
   config = {
     environment.etc = {
-      "sudoers.d/10-nix-darwin-extra-config" = mkIf (cfg.extraConfig != null) {
-        text = cfg.extraConfig;
-      };
+      "sudoers.d/10-nix-darwin-extra-config" = mkIf (cfg.extraConfig != null) { text = cfg.extraConfig; };
     };
   };
 }

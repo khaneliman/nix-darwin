@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   system.defaults.NSGlobalDomain.AppleShowAllFiles = true;
@@ -28,7 +33,7 @@
   system.defaults.NSGlobalDomain.NSTextShowsControlCharacters = true;
   system.defaults.NSGlobalDomain.NSUseAnimatedFocusRing = false;
   system.defaults.NSGlobalDomain.NSScrollAnimationEnabled = true;
-  system.defaults.NSGlobalDomain.NSWindowResizeTime = 0.01;
+  system.defaults.NSGlobalDomain.NSWindowResizeTime = 1.0e-2;
   system.defaults.NSGlobalDomain.NSWindowShouldDragOnGesture = true;
   system.defaults.NSGlobalDomain.InitialKeyRepeat = 10;
   system.defaults.NSGlobalDomain.KeyRepeat = 1;
@@ -50,8 +55,14 @@
   system.defaults.dock.appswitcher-all-displays = false;
   system.defaults.dock.autohide-delay = 0.24;
   system.defaults.dock.orientation = "left";
-  system.defaults.dock.persistent-apps = ["MyApp.app" "Cool.app"];
-  system.defaults.dock.persistent-others = ["~/Documents" "~/Downloads/file.txt"];
+  system.defaults.dock.persistent-apps = [
+    "MyApp.app"
+    "Cool.app"
+  ];
+  system.defaults.dock.persistent-others = [
+    "~/Documents"
+    "~/Downloads/file.txt"
+  ];
   system.defaults.dock.scroll-to-open = false;
   system.defaults.finder.AppleShowAllFiles = true;
   system.defaults.finder.ShowStatusBar = true;
@@ -99,10 +110,11 @@
   system.defaults.WindowManager.StandardHideWidgets = true;
   system.defaults.WindowManager.StageManagerHideWidgets = true;
   system.defaults.CustomUserPreferences = {
-    "NSGlobalDomain" = { "TISRomanSwitchState" = 1; };
+    "NSGlobalDomain" = {
+      "TISRomanSwitchState" = 1;
+    };
     "com.apple.Safari" = {
-      "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" =
-        true;
+      "com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled" = true;
     };
   };
   system.defaults.controlcenter.BatteryShowPercentage = true;
@@ -112,20 +124,22 @@
   system.defaults.controlcenter.Display = false;
   system.defaults.controlcenter.FocusModes = false;
   system.defaults.controlcenter.NowPlaying = true;
-  test = lib.strings.concatMapStringsSep "\n"
-    (x: ''
-      echo >&2 "checking defaults write in /${x}"
-      ${pkgs.python3}/bin/python3 <<EOL
-      import sys
-      from pathlib import Path
-      fixture = '${./fixtures/system-defaults-write}/${x}.txt'
-      out = '${config.out}/${x}'
-      if Path(fixture).read_text() not in Path(out).read_text():
-        print("Did not find content from %s in %s" % (fixture, out), file=sys.stderr)
-        sys.exit(1)
-      EOL
-    '') [
-    "activate"
-    "activate-user"
-  ];
+  test =
+    lib.strings.concatMapStringsSep "\n"
+      (x: ''
+        echo >&2 "checking defaults write in /${x}"
+        ${pkgs.python3}/bin/python3 <<EOL
+        import sys
+        from pathlib import Path
+        fixture = '${./fixtures/system-defaults-write}/${x}.txt'
+        out = '${config.out}/${x}'
+        if Path(fixture).read_text() not in Path(out).read_text():
+          print("Did not find content from %s in %s" % (fixture, out), file=sys.stderr)
+          sys.exit(1)
+        EOL
+      '')
+      [
+        "activate"
+        "activate-user"
+      ];
 }

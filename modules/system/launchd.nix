@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -11,9 +16,11 @@ let
     mkTextDerivation = pkgs.writeText;
   };
 
-  launchdVariables = mapAttrsToList (name: value: ''
-    launchctl setenv ${name} '${value}'
-  '');
+  launchdVariables = mapAttrsToList (
+    name: value: ''
+      launchctl setenv ${name} '${value}'
+    ''
+  );
 
   launchdActivation = basedir: target: ''
     if ! diff '${cfg.build.launchd}/Library/${basedir}/${target}' '/Library/${basedir}/${target}' &> /dev/null; then
@@ -84,17 +91,15 @@ in
 
   config = {
 
-    system.build.launchd = pkgs.runCommand "launchd"
-      { preferLocalBuild = true; }
-      ''
-        mkdir -p $out/Library/LaunchAgents $out/Library/LaunchDaemons $out/user/Library/LaunchAgents
-        cd $out/Library/LaunchAgents
-        ${concatMapStringsSep "\n" (attr: "ln -s '${attr.source}' '${attr.target}'") launchAgents}
-        cd $out/Library/LaunchDaemons
-        ${concatMapStringsSep "\n" (attr: "ln -s '${attr.source}' '${attr.target}'") launchDaemons}
-        cd $out/user/Library/LaunchAgents
-        ${concatMapStringsSep "\n" (attr: "ln -s '${attr.source}' '${attr.target}'") userLaunchAgents}
-      '';
+    system.build.launchd = pkgs.runCommand "launchd" { preferLocalBuild = true; } ''
+      mkdir -p $out/Library/LaunchAgents $out/Library/LaunchDaemons $out/user/Library/LaunchAgents
+      cd $out/Library/LaunchAgents
+      ${concatMapStringsSep "\n" (attr: "ln -s '${attr.source}' '${attr.target}'") launchAgents}
+      cd $out/Library/LaunchDaemons
+      ${concatMapStringsSep "\n" (attr: "ln -s '${attr.source}' '${attr.target}'") launchDaemons}
+      cd $out/user/Library/LaunchAgents
+      ${concatMapStringsSep "\n" (attr: "ln -s '${attr.source}' '${attr.target}'") userLaunchAgents}
+    '';
 
     system.activationScripts.launchd.text = ''
       # Set up launchd services in /Library/LaunchAgents and /Library/LaunchDaemons
@@ -139,7 +144,7 @@ in
       ${concatStringsSep "\n" (launchdVariables config.launchd.user.envVariables)}
 
       ${optionalString (builtins.length userLaunchAgents > 0) ''
-      mkdir -p ~/Library/LaunchAgents
+        mkdir -p ~/Library/LaunchAgents
       ''}
       ${concatMapStringsSep "\n" (attr: userLaunchdActivation attr.target) userLaunchAgents}
 
