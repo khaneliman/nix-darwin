@@ -61,6 +61,8 @@
       description = "nix flake init -t nix-darwin";
     };
 
+    formatter = forAllSystems(system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
+
     checks = forDarwinSystems (system: jobs.${system}.tests // jobs.${system}.examples);
 
     packages = forAllSystems (system: {
